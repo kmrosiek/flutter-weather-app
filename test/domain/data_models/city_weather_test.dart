@@ -75,4 +75,20 @@ void main() {
       expect(cityWeather.value, const Right(Weather(validCityName)));
     },
   );
+
+  test(
+    'should set cityName member in case of no error in getDataForCity '
+    'method when passed not empty string',
+    () async {
+      // arrange
+      Either<ValueFailure, Weather> expectedReturn;
+      expectedReturn = const Right(Weather(validCityName));
+      when(mockRemote.getDataForCity(any))
+          .thenAnswer((_) async => expectedReturn);
+      // act
+      CityWeather cityWeather = await CityWeather.create(validCityName);
+      // assert
+      expect(cityWeather.cityName, validCityName);
+    },
+  );
 }

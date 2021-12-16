@@ -12,9 +12,9 @@ Future<Either<ValueFailure, Weather>> getWeatherDataForCity(String city) async {
 
 class CityWeather {
   final Either<ValueFailure, Weather> value;
-  final String city;
+  final String cityName;
 
-  CityWeather._create(this.value, this.city);
+  CityWeather._create(this.value, this.cityName);
 
   static Future<CityWeather> create(String city) async {
     if (city.isEmpty) {
@@ -22,8 +22,8 @@ class CityWeather {
           Left(ValueFailure<String>.empty(failedValue: city)), city);
     }
 
-    var a = await getWeatherDataForCity(city);
-    var comp = CityWeather._create(a, city);
+    var weatherOrFailure = await getWeatherDataForCity(city);
+    var comp = CityWeather._create(weatherOrFailure, city);
     return comp;
   }
 
@@ -31,9 +31,11 @@ class CityWeather {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is CityWeather && other.value == value && other.city == city;
+    return other is CityWeather &&
+        other.value == value &&
+        other.cityName == cityName;
   }
 
   @override
-  int get hashCode => 17 * value.hashCode + city.hashCode;
+  int get hashCode => 17 * value.hashCode + cityName.hashCode;
 }
