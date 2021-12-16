@@ -29,10 +29,14 @@ environment:
 dependencies:
   build_runner: ^2.1.5
   cupertino_icons: ^1.0.2
+  dartz: ^0.10.1
   flutter:
     sdk: flutter
   freezed: ^1.1.0
   freezed_annotation: ^1.1.0
+  get_it: ^7.2.0
+  injectable: ^1.5.0
+  injectable_generator: ^1.5.2
 
 dev_dependencies:
   flutter_lints: ^1.0.0
