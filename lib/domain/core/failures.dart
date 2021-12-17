@@ -10,4 +10,9 @@ class ValueFailure<T> with _$ValueFailure<T> {
   const factory ValueFailure.invalidValue({
     required T failedValue,
   }) = InvalidValue<T>;
+  const factory ValueFailure.outOfRange({
+    required T failedValue,
+    required T min,
+    required T max,
+  }) = OutOfRange<T>;
 }
