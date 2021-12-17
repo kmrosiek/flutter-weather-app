@@ -13,7 +13,7 @@ class OpenWeatherRepository implements IRemoteRepository {
   @override
   Future<Either<RepositoryFailure, Weather>> getDataForCity(String city) async {
     if (!await networkInfo.isConnected) {
-      return const Left(RepositoryFailure.noInternet());
+      return left(const RepositoryFailure.noInternet());
     }
     return Future.value(left(const RepositoryFailure.notFound()));
   }
