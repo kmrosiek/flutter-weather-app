@@ -2,12 +2,15 @@ import 'package:dartz/dartz.dart';
 import 'package:weatherapp/domain/core/failures.dart';
 import 'package:weatherapp/domain/repositories/i_remote_repository.dart';
 import 'package:weatherapp/domain/data_models/weather.dart';
+import 'package:weatherapp/domain/repositories/repository_failures.dart';
 import 'package:weatherapp/injection.dart';
 
 Future<Either<ValueFailure, Weather>> getWeatherDataForCity(String city) async {
-  Either<ValueFailure, Weather> weatherOrFailure =
+  Either<RepositoryFailure, Weather> weatherOrFailure =
       await getIt<IRemoteRepository>().getDataForCity(city);
-  return weatherOrFailure;
+  return weatherOrFailure.fold(
+      (l) => left(ValueFailure<String>.invalidValue(failedValue: city)),
+      (r) => right(r));
 }
 
 class CityWeather {

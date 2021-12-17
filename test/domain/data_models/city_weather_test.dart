@@ -8,6 +8,7 @@ import 'package:weatherapp/domain/data_models/weather_value_objects.dart';
 import 'package:weatherapp/domain/repositories/i_remote_repository.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:weatherapp/domain/repositories/repository_failures.dart';
 
 import 'city_weather_test.mocks.dart';
 
@@ -60,8 +61,8 @@ void main() {
     'method when passed not empty string',
     () async {
       // arrange
-      when(mockRemote.getDataForCity(any)).thenAnswer((_) async => const Left(
-          ValueFailure<String>.invalidValue(failedValue: validCityName)));
+      when(mockRemote.getDataForCity(any))
+          .thenAnswer((_) async => left(const RepositoryFailure.notFound()));
       // act
       CityWeather cityWeather = await CityWeather.create(validCityName);
       // assert
@@ -76,7 +77,7 @@ void main() {
     'method when passed not empty string',
     () async {
       // arrange
-      Either<ValueFailure, Weather> expectedReturn;
+      Either<RepositoryFailure, Weather> expectedReturn;
       expectedReturn = Right(validWeather);
       when(mockRemote.getDataForCity(any))
           .thenAnswer((_) async => expectedReturn);
@@ -92,7 +93,7 @@ void main() {
     'method when passed not empty string',
     () async {
       // arrange
-      Either<ValueFailure, Weather> expectedReturn;
+      Either<RepositoryFailure, Weather> expectedReturn;
       expectedReturn = Right(validWeather);
       when(mockRemote.getDataForCity(any))
           .thenAnswer((_) async => expectedReturn);
