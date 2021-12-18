@@ -31,7 +31,8 @@
 .pub/
 /build/
 *.freezed.dart
-*mocks.dart
+*.mocks.dart
+*.g.dart
 
 # Web related
 lib/generated_plugin_registrant.dart
