@@ -33,6 +33,7 @@
 *.freezed.dart
 *.mocks.dart
 *.g.dart
+lib/injection.config.dart
 open_weather_app_id.dart
 
 # Web related
