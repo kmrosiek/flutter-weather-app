@@ -6,8 +6,8 @@ import 'package:weatherapp/domain/repositories/i_api_client.dart';
 import 'package:weatherapp/domain/repositories/i_remote_repository.dart';
 import 'package:weatherapp/domain/data_models/weather.dart';
 import 'package:weatherapp/domain/repositories/repository_failures.dart';
-import 'package:weatherapp/infrastructure/core/http_exceptions.dart';
 import 'package:weatherapp/infrastructure/data_models/coordinates_dto.dart';
+import 'package:weatherapp/infrastructure/data_models/weather_dto.dart';
 
 @LazySingleton(as: IRemoteRepository)
 class OpenWeatherRepository implements IRemoteRepository {
@@ -21,30 +21,35 @@ class OpenWeatherRepository implements IRemoteRepository {
       return left(const RepositoryFailure.noInternet());
     }
 
-    Coordinates coords;
+    final WeatherDto weatherDto;
+
     try {
-      coords =
-          await apiClient.getCityCoordinates(city).catchError((Object obj) {
-        throw ResponseException(obj);
+      final Coordinates coords =
+          await apiClient.getCityCoordinates(city).catchError((Object error) {
+        throw error;
       });
-    } on ResponseException catch (e) {
-      return left(handleException(e.object));
-    }
 
-    return Future.value(left(const RepositoryFailure.notFound()));
-  }
-
-  RepositoryFailure handleException(Object obj) {
-    if (obj.runtimeType == DioError) {
-      final response = (obj as DioError).response;
+      weatherDto = await apiClient
+          .getWeather(coords.coord.latitude, coords.coord.longitude)
+          .catchError((Object error) {
+        throw error;
+      });
+    } on DioError catch (dioError) {
+      final response = dioError.response;
       switch (response?.statusCode) {
         case 401:
         case 403:
-          return const RepositoryFailure.insufficientPermission();
+          return left(const RepositoryFailure.insufficientPermission());
         case 404:
-          return const RepositoryFailure.notFound();
+          return left(const RepositoryFailure.notFound());
       }
+      return left(const RepositoryFailure.unexpected());
+    } on TypeError catch (_) {
+      return left(const RepositoryFailure.invalidDatabaseStructure());
+    } on RangeError catch (_) {
+      return left(const RepositoryFailure.invalidDatabaseStructure());
     }
-    return const RepositoryFailure.unexpected();
+
+    return right(weatherDto.toDomain());
   }
 }
