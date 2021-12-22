@@ -46,6 +46,7 @@ dependencies:
   mockito: ^5.0.16
   retrofit: ^3.0.0
   retrofit_generator: ^3.0.0+2
+  shared_preferences: ^2.0.11
 
 dev_dependencies:
   flutter_lints: ^1.0.0
