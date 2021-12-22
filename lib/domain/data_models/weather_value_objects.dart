@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'package:weatherapp/domain/core/failures.dart';
 import 'package:weatherapp/domain/core/value_validators.dart';
@@ -68,4 +69,23 @@ class DailyTemperatures {
   }
 
   const DailyTemperatures._(this.value);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    if (other is! DailyTemperatures) return false;
+
+    if (value.isLeft() && other.value.isLeft()) return other.value == value;
+
+    if (value.isRight() && other.value.isRight()) {
+      return const ListEquality().equals(value.getOrElse(() => throw Error()),
+          other.value.getOrElse(() => throw Error()));
+    }
+
+    return false;
+  }
+
+  @override
+  int get hashCode => value.hashCode;
 }
