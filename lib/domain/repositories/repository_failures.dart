@@ -9,5 +9,7 @@ class RepositoryFailure with _$RepositoryFailure {
   const factory RepositoryFailure.invalidArgument() = _InvalidArgument;
   const factory RepositoryFailure.insufficientPermission() =
       _InsufficientPermission;
+  const factory RepositoryFailure.invalidDatabaseStructure() =
+      _InvalidDatabaseStructure;
   const factory RepositoryFailure.unexpected() = _Unexpected;
 }
