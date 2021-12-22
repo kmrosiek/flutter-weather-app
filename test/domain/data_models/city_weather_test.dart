@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:weatherapp/domain/core/failures.dart';
 import 'package:weatherapp/domain/data_models/city_weather.dart';
+import 'package:weatherapp/domain/data_models/value_objects.dart';
 import 'package:weatherapp/domain/data_models/weather.dart';
 import 'package:weatherapp/domain/data_models/weather_value_objects.dart';
 import 'package:weatherapp/domain/repositories/i_remote_repository.dart';
@@ -100,7 +101,7 @@ void main() {
       // act
       CityWeather cityWeather = await CityWeather.create(validCityName);
       // assert
-      expect(cityWeather.cityName, validCityName);
+      expect(cityWeather.cityName, CityName(validCityName));
     },
   );
 }
