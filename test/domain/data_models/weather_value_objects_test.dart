@@ -28,7 +28,7 @@ void main() {
     'with at least one temperature failure.',
     () async {
       // arrange
-      final maxTemperature = Temperature.max;
+      const maxTemperature = Temperature.max;
       final List<Temperature> temperatures =
           List.filled(DailyTemperatures.expectedLength, Temperature(0.0));
       temperatures[DailyTemperatures.expectedLength - 1] =
