@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weatherapp/domain/repositories/i_api_client.dart';
 import 'package:weatherapp/infrastructure/repositories/retrofit_client.dart';
 
@@ -7,4 +8,8 @@ import 'package:weatherapp/infrastructure/repositories/retrofit_client.dart';
 abstract class InjectableModule {
   @LazySingleton(as: IAPIClient)
   RetrofitClient get retrofitClient => RetrofitClient(Dio());
+
+  @preResolve
+  Future<SharedPreferences> get sharedPreferences =>
+      SharedPreferences.getInstance();
 }
