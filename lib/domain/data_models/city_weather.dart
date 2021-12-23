@@ -16,21 +16,30 @@ Future<Either<ValueFailure, Weather>> getWeatherDataForCity(String city) async {
 
 class CityWeather {
   final Either<ValueFailure, Weather> value;
-  final CityName cityName;
+  final CityName _cityName;
+  final bool favorite;
 
-  CityWeather._create(this.value, this.cityName);
+  CityWeather._create(this.value, this._cityName, this.favorite);
 
-  static Future<CityWeather> create(String city) async {
-    CityName cityName = CityName(city);
-    if (!cityName.isValid()) {
+  static Future<CityWeather> create(
+      {required String cityName, bool favor = false}) async {
+    CityName cityNameObj = CityName(cityName);
+    if (!cityNameObj.isValid()) {
       return CityWeather._create(
-          Left(ValueFailure<String>.empty(failedValue: city)), cityName);
+          Left(ValueFailure<String>.empty(failedValue: cityName)),
+          cityNameObj,
+          favor);
     }
 
-    var weatherOrFailure = await getWeatherDataForCity(city);
-    var comp = CityWeather._create(weatherOrFailure, cityName);
+    var weatherOrFailure = await getWeatherDataForCity(cityName);
+    var comp = CityWeather._create(weatherOrFailure, cityNameObj, favor);
     return comp;
   }
+
+  bool isValid() => value.isRight() && _cityName.isValid();
+
+  String getCityNameOrThrow() => _cityName.value
+      .getOrElse(() => throw const RepositoryFailure.unexpected());
 
   @override
   bool operator ==(Object other) {
@@ -38,9 +47,10 @@ class CityWeather {
 
     return other is CityWeather &&
         other.value == value &&
-        other.cityName == cityName;
+        other._cityName == _cityName;
   }
 
   @override
-  int get hashCode => 17 * value.hashCode + cityName.hashCode;
+  int get hashCode =>
+      17 * value.hashCode + 23 * _cityName.hashCode + favorite.hashCode;
 }
