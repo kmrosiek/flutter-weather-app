@@ -13,7 +13,7 @@ class SharedPrefRepository implements ILocalRepository {
   SharedPrefRepository(this.sharedPreferences);
 
   @override
-  Future<Either<RepositoryFailure, List<CityName>>> loadCityList() {
+  Future<Either<RepositoryFailure, Set<CityName>>> loadCitySet() {
     final List<String>? cityList;
     try {
       cityList = sharedPreferences.getStringList(cachedCityList);
@@ -26,8 +26,8 @@ class SharedPrefRepository implements ILocalRepository {
       return Future.value(const Left(RepositoryFailure.notFound()));
     }
 
-    List<CityName> cityNames =
-        cityList.map((cityName) => CityName(cityName)).toList();
+    Set<CityName> cityNames =
+        cityList.map((cityName) => CityName(cityName)).toSet();
 
     if (cityNames.any((city) => !city.isValid())) {
       return Future.value(
@@ -39,8 +39,8 @@ class SharedPrefRepository implements ILocalRepository {
 
   @override
   Future<Either<RepositoryFailure, Unit>> saveCity(CityName cityName) async {
-    Either<RepositoryFailure, List<CityName>> cityNamesOrFailure =
-        await loadCityList();
+    Either<RepositoryFailure, Set<CityName>> cityNamesOrFailure =
+        await loadCitySet();
 
     return Future.value(cityNamesOrFailure.fold((failure) async {
       if (const RepositoryFailure.notFound() == failure) {

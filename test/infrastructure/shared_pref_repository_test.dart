@@ -18,7 +18,7 @@ void main() {
     sharedPref = SharedPrefRepository(mockSharedPreferences);
   });
 
-  group('loadCityList method', () {
+  group('loadCitySet method', () {
     test(
       'should return RepositoryFailure.notFound when key cannot be found.',
       () async {
@@ -27,7 +27,7 @@ void main() {
                 .getStringList(SharedPrefRepository.cachedCityList))
             .thenReturn(null);
         // act
-        final result = await sharedPref.loadCityList();
+        final result = await sharedPref.loadCitySet();
         // assert
         expect(result, left(const RepositoryFailure.notFound()));
       },
@@ -41,7 +41,7 @@ void main() {
                 .getStringList(SharedPrefRepository.cachedCityList))
             .thenReturn(<String>[]);
         // act
-        final result = await sharedPref.loadCityList();
+        final result = await sharedPref.loadCitySet();
         // assert
         expect(result, left(const RepositoryFailure.notFound()));
       },
@@ -55,7 +55,7 @@ void main() {
                 .getStringList(SharedPrefRepository.cachedCityList))
             .thenThrow(TypeError());
         // act
-        final result = await sharedPref.loadCityList();
+        final result = await sharedPref.loadCitySet();
         // assert
         expect(
             result, left(const RepositoryFailure.invalidDatabaseStructure()));
@@ -70,7 +70,7 @@ void main() {
                 .getStringList(SharedPrefRepository.cachedCityList))
             .thenReturn(<String>["Warsaw", ""]);
         // act
-        final result = await sharedPref.loadCityList();
+        final result = await sharedPref.loadCitySet();
         // assert
         expect(
             result, left(const RepositoryFailure.invalidDatabaseStructure()));
@@ -78,17 +78,17 @@ void main() {
     );
 
     test(
-      'should return List of CityNames when SharedPref contains list of valid cities ',
+      'should return Set of CityNames when SharedPref contains list of valid cities ',
       () async {
         List<String> cities = ["Warsaw", "London"];
         when(mockSharedPreferences
                 .getStringList(SharedPrefRepository.cachedCityList))
             .thenReturn(cities);
         // act
-        final result = await sharedPref.loadCityList();
+        final result = await sharedPref.loadCitySet();
         // assert
         expect(result.getOrElse(() => throw Exception()),
-            List.generate(cities.length, (index) => CityName(cities[index])));
+            Set.from(cities.map((city) => CityName(city))));
       },
     );
   });
@@ -111,21 +111,41 @@ void main() {
         expect(result, right(unit));
       },
     );
+    test(
+      'should return Unit while saving city only once when the city was already '
+      'present in sharedPreferences.',
+      () async {
+        // arrange
+        const String cityPresent = 'Warsaw';
+        const String cityToBeInserted = 'Warsaw';
+        when(mockSharedPreferences
+                .getStringList(SharedPrefRepository.cachedCityList))
+            .thenReturn([cityPresent]);
+        when(mockSharedPreferences.setStringList(
+                SharedPrefRepository.cachedCityList, [cityPresent]))
+            .thenAnswer((_) async => true);
+        // act
+        final result = await sharedPref.saveCity(CityName(cityToBeInserted));
+        // assert
+        expect(result, right(unit));
+      },
+    );
 
     test(
       'should return Unit when passed valid CityName and there are cities '
       'saved on the list already.',
       () async {
         // arrange
-        const String city = 'Warsaw';
+        const String cityPresent = 'Warsaw';
+        const String cityToBeInserted = 'New York';
         when(mockSharedPreferences
                 .getStringList(SharedPrefRepository.cachedCityList))
-            .thenReturn([city]);
+            .thenReturn([cityPresent]);
         when(mockSharedPreferences.setStringList(
-                SharedPrefRepository.cachedCityList, [city, city]))
-            .thenAnswer((_) async => true);
+            SharedPrefRepository.cachedCityList,
+            [cityPresent, cityToBeInserted])).thenAnswer((_) async => true);
         // act
-        final result = await sharedPref.saveCity(CityName(city));
+        final result = await sharedPref.saveCity(CityName(cityToBeInserted));
         // assert
         expect(result, right(unit));
       },
