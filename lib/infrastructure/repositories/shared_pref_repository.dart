@@ -44,7 +44,7 @@ class SharedPrefRepository implements ILocalRepository {
 
     return Future.value(cityNamesOrFailure.fold((failure) async {
       if (const RepositoryFailure.notFound() == failure) {
-        await saveList([
+        await saveListWithLowerCase([
           cityName.value
               .getOrElse(() => throw const RepositoryFailure.unexpected())
         ]);
@@ -57,12 +57,13 @@ class SharedPrefRepository implements ILocalRepository {
           .map((e) => e.value
               .getOrElse(() => throw const RepositoryFailure.unexpected()))
           .toList();
-      saveList(cityNames);
+      saveListWithLowerCase(cityNames);
       return right(unit);
     }));
   }
 
-  Future<void> saveList(List<String> cities) async {
-    sharedPreferences.setStringList(cachedCityList, cities);
+  Future<void> saveListWithLowerCase(List<String> cities) async {
+    sharedPreferences.setStringList(
+        cachedCityList, cities.map((city) => city.toLowerCase()).toList());
   }
 }

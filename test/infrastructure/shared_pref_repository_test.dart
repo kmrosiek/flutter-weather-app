@@ -98,7 +98,7 @@ void main() {
       'should return Unit when passed valid CityName and city list is empty yet',
       () async {
         // arrange
-        const String city = 'Warsaw';
+        const String city = 'warsaw';
         when(mockSharedPreferences
                 .getStringList(SharedPrefRepository.cachedCityList))
             .thenReturn([]);
@@ -111,13 +111,34 @@ void main() {
         expect(result, right(unit));
       },
     );
+
+    test(
+      'should call setStringList with lowercase even when passed cityname with '
+      'capital letters.',
+      () async {
+        // arrange
+        const String city = 'Warsaw';
+        when(mockSharedPreferences
+                .getStringList(SharedPrefRepository.cachedCityList))
+            .thenReturn([]);
+        when(mockSharedPreferences.setStringList(
+                SharedPrefRepository.cachedCityList,
+                List.filled(1, city.toLowerCase())))
+            .thenAnswer((_) async => true);
+        // act
+        final result = await sharedPref.saveCity(CityName(city));
+        // assert
+        expect(result, right(unit));
+      },
+    );
+
     test(
       'should return Unit while saving city only once when the city was already '
       'present in sharedPreferences.',
       () async {
         // arrange
-        const String cityPresent = 'Warsaw';
-        const String cityToBeInserted = 'Warsaw';
+        const String cityPresent = 'warsaw';
+        const String cityToBeInserted = 'warsaw';
         when(mockSharedPreferences
                 .getStringList(SharedPrefRepository.cachedCityList))
             .thenReturn([cityPresent]);
@@ -136,8 +157,8 @@ void main() {
       'saved on the list already.',
       () async {
         // arrange
-        const String cityPresent = 'Warsaw';
-        const String cityToBeInserted = 'New York';
+        const String cityPresent = 'warsaw';
+        const String cityToBeInserted = 'new york';
         when(mockSharedPreferences
                 .getStringList(SharedPrefRepository.cachedCityList))
             .thenReturn([cityPresent]);
