@@ -10,6 +10,7 @@ part 'retrofit_client.g.dart';
 @RestApi(baseUrl: 'http://api.openweathermap.org/data/2.5/')
 abstract class RetrofitClient implements IAPIClient {
   factory RetrofitClient(Dio dio, {String baseUrl}) = _RetrofitClient;
+
   static const appIdParam = 'appid=$appId';
   static const unitsParam = 'units=metric';
   static const excludeParams = 'exclude=minutely,hourly,alerts';
