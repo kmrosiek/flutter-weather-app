@@ -6,16 +6,8 @@ import 'package:weatherapp/domain/data_models/weather.dart';
 import 'package:weatherapp/domain/repositories/repository_failures.dart';
 import 'package:weatherapp/injection.dart';
 
-Future<Either<ValueFailure, Weather>> getWeatherDataForCity(String city) async {
-  Either<RepositoryFailure, Weather> weatherOrFailure =
-      await getIt<IRemoteRepository>().getDataForCity(city);
-  return weatherOrFailure.fold(
-      (l) => left(ValueFailure<String>.invalidValue(failedValue: city)),
-      (r) => right(r));
-}
-
 class CityWeather {
-  final Either<ValueFailure, Weather> value;
+  final Either<RepositoryFailure, Weather> value;
   final CityName _cityName;
   final bool favorite;
 
@@ -26,12 +18,11 @@ class CityWeather {
     CityName cityNameObj = CityName(cityName);
     if (!cityNameObj.isValid()) {
       return CityWeather._create(
-          Left(ValueFailure<String>.empty(failedValue: cityName)),
-          cityNameObj,
-          favor);
+          left(const RepositoryFailure.invalidArgument()), cityNameObj, favor);
     }
 
-    var weatherOrFailure = await getWeatherDataForCity(cityName);
+    var weatherOrFailure =
+        await getIt<IRemoteRepository>().getDataForCity(cityName);
     var comp = CityWeather._create(weatherOrFailure, cityNameObj, favor);
     return comp;
   }
@@ -40,6 +31,9 @@ class CityWeather {
 
   String getCityNameOrThrow() => _cityName.value
       .getOrElse(() => throw const RepositoryFailure.unexpected());
+
+  RepositoryFailure getFailureOrThrow() => value.fold((failure) => failure,
+      (r) => throw ValueFailure.invalidValue(failedValue: r));
 
   @override
   bool operator ==(Object other) {
