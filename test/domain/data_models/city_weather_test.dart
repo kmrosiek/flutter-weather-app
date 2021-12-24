@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:weatherapp/domain/core/failures.dart';
 import 'package:weatherapp/domain/data_models/city_weather.dart';
-import 'package:weatherapp/domain/data_models/value_objects.dart';
 import 'package:weatherapp/domain/data_models/weather.dart';
 import 'package:weatherapp/domain/data_models/weather_value_objects.dart';
 import 'package:weatherapp/domain/repositories/i_remote_repository.dart';
@@ -37,7 +36,8 @@ void main() {
       // arrange
       const String emptyCityName = "";
       // act
-      CityWeather cityWeather = await CityWeather.create(emptyCityName);
+      CityWeather cityWeather =
+          await CityWeather.create(cityName: emptyCityName);
       // assert
       expect(cityWeather.value,
           const Left(ValueFailure<String>.empty(failedValue: emptyCityName)));
@@ -51,7 +51,7 @@ void main() {
       when(mockRemote.getDataForCity(any))
           .thenAnswer((_) async => Right(validWeather));
       // act
-      await CityWeather.create(validCityName);
+      await CityWeather.create(cityName: validCityName);
       // assert
       verify(mockRemote.getDataForCity(any));
     },
@@ -65,7 +65,8 @@ void main() {
       when(mockRemote.getDataForCity(any))
           .thenAnswer((_) async => left(const RepositoryFailure.notFound()));
       // act
-      CityWeather cityWeather = await CityWeather.create(validCityName);
+      CityWeather cityWeather =
+          await CityWeather.create(cityName: validCityName);
       // assert
       expect(
           cityWeather.value,
@@ -83,7 +84,8 @@ void main() {
       when(mockRemote.getDataForCity(any))
           .thenAnswer((_) async => expectedReturn);
       // act
-      CityWeather cityWeather = await CityWeather.create(validCityName);
+      CityWeather cityWeather =
+          await CityWeather.create(cityName: validCityName);
       // assert
       expect(cityWeather.value, Right(validWeather));
     },
@@ -99,9 +101,10 @@ void main() {
       when(mockRemote.getDataForCity(any))
           .thenAnswer((_) async => expectedReturn);
       // act
-      CityWeather cityWeather = await CityWeather.create(validCityName);
+      CityWeather cityWeather =
+          await CityWeather.create(cityName: validCityName);
       // assert
-      expect(cityWeather.cityName, CityName(validCityName));
+      expect(cityWeather.getCityNameOrThrow(), validCityName);
     },
   );
 }
