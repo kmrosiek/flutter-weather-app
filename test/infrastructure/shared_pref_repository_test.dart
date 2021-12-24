@@ -1,21 +1,33 @@
+import 'dart:convert';
+
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:weatherapp/domain/data_models/value_objects.dart';
+import 'package:weatherapp/domain/data_models/city_name_and_favorite.dart';
+import 'package:weatherapp/domain/repositories/i_remote_repository.dart';
 import 'package:weatherapp/domain/repositories/repository_failures.dart';
 import 'package:weatherapp/infrastructure/repositories/shared_pref_repository.dart';
 
+import '../domain/data_models/city_weather_test.mocks.dart';
+import 'mocked_objects.dart';
 import 'shared_pref_repository_test.mocks.dart';
 
 @GenerateMocks([SharedPreferences])
 void main() {
   late SharedPrefRepository sharedPref;
   late SharedPreferences mockSharedPreferences;
+  late MockIRemoteRepository mockIRemoteRepository;
+
   setUpAll(() {
     mockSharedPreferences = MockSharedPreferences();
     sharedPref = SharedPrefRepository(mockSharedPreferences);
+    mockIRemoteRepository = MockIRemoteRepository();
+    GetIt.instance.registerSingleton<IRemoteRepository>(mockIRemoteRepository);
+    when(mockIRemoteRepository.getDataForCity(any)).thenAnswer(
+        (realInvocation) => Future.value(right(validWeatherDto.toDomain())));
   });
 
   group('loadCitySet method', () {
@@ -78,55 +90,57 @@ void main() {
     );
 
     test(
-      'should return Set of CityNames when SharedPref contains list of valid cities ',
+      'should return List of CityNameAndFavorite when SharedPref contains list of valid cities ',
       () async {
-        List<String> cities = ["Warsaw", "London"];
+        var city1 =
+            const CityNameAndFavorite(cityName: 'Warsaw', favorite: false);
+        var city2 =
+            const CityNameAndFavorite(cityName: 'Berlin', favorite: true);
+
         when(mockSharedPreferences
                 .getStringList(SharedPrefRepository.cachedCityList))
-            .thenReturn(cities);
+            .thenReturn([jsonEncode(city1), jsonEncode(city2)]);
         // act
         final result = await sharedPref.loadCitySet();
         // assert
-        expect(result.getOrElse(() => throw Exception()),
-            Set.from(cities.map((city) => CityName(city))));
+        expect(result.getOrElse(() => throw Exception()), [city1, city2]);
       },
     );
   });
 
   group('saveCity method', () {
-    test(
-      'should return Unit when passed valid CityName and city list is empty yet',
-      () async {
-        // arrange
-        const String city = 'warsaw';
-        when(mockSharedPreferences
-                .getStringList(SharedPrefRepository.cachedCityList))
-            .thenReturn([]);
-        when(mockSharedPreferences.setStringList(
-                SharedPrefRepository.cachedCityList, List.filled(1, city)))
-            .thenAnswer((_) async => true);
-        // act
-        final result = await sharedPref.saveCity(CityName(city));
-        // assert
-        expect(result, right(unit));
-      },
-    );
+    const validCity = CityNameAndFavorite(cityName: 'warsaw', favorite: false);
 
     test(
       'should call setStringList with lowercase even when passed cityname with '
       'capital letters.',
       () async {
         // arrange
-        const String city = 'Warsaw';
         when(mockSharedPreferences
                 .getStringList(SharedPrefRepository.cachedCityList))
             .thenReturn([]);
         when(mockSharedPreferences.setStringList(
-                SharedPrefRepository.cachedCityList,
-                List.filled(1, city.toLowerCase())))
+                SharedPrefRepository.cachedCityList, [jsonEncode(validCity)]))
             .thenAnswer((_) async => true);
         // act
-        final result = await sharedPref.saveCity(CityName(city));
+        final result = await sharedPref.saveCity(validCity);
+        // assert
+        expect(result, right(unit));
+      },
+    );
+
+    test(
+      'should return Unit when passed valid CityName and city list is empty yet',
+      () async {
+        // arrange
+        when(mockSharedPreferences
+                .getStringList(SharedPrefRepository.cachedCityList))
+            .thenReturn([]);
+        when(mockSharedPreferences.setStringList(
+                SharedPrefRepository.cachedCityList, [jsonEncode(validCity)]))
+            .thenAnswer((_) async => true);
+        // act
+        final result = await sharedPref.saveCity(validCity);
         // assert
         expect(result, right(unit));
       },
@@ -137,36 +151,34 @@ void main() {
       'present in sharedPreferences.',
       () async {
         // arrange
-        const String cityPresent = 'warsaw';
-        const String cityToBeInserted = 'warsaw';
         when(mockSharedPreferences
                 .getStringList(SharedPrefRepository.cachedCityList))
-            .thenReturn([cityPresent]);
+            .thenReturn([jsonEncode(validCity)]);
         when(mockSharedPreferences.setStringList(
-                SharedPrefRepository.cachedCityList, [cityPresent]))
+                SharedPrefRepository.cachedCityList, [jsonEncode(validCity)]))
             .thenAnswer((_) async => true);
         // act
-        final result = await sharedPref.saveCity(CityName(cityToBeInserted));
+        final result = await sharedPref.saveCity(validCity);
         // assert
         expect(result, right(unit));
       },
     );
 
     test(
-      'should return Unit when passed valid CityName and there are cities '
+      'should return Unit and update boolean when there is the city '
       'saved on the list already.',
       () async {
+        const newValueCity =
+            CityNameAndFavorite(cityName: 'warsaw', favorite: true);
         // arrange
-        const String cityPresent = 'warsaw';
-        const String cityToBeInserted = 'new york';
         when(mockSharedPreferences
                 .getStringList(SharedPrefRepository.cachedCityList))
-            .thenReturn([cityPresent]);
+            .thenReturn([jsonEncode(validCity)]);
         when(mockSharedPreferences.setStringList(
             SharedPrefRepository.cachedCityList,
-            [cityPresent, cityToBeInserted])).thenAnswer((_) async => true);
+            [jsonEncode(newValueCity)])).thenAnswer((_) async => true);
         // act
-        final result = await sharedPref.saveCity(CityName(cityToBeInserted));
+        final result = await sharedPref.saveCity(newValueCity);
         // assert
         expect(result, right(unit));
       },

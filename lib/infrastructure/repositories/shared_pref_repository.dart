@@ -1,7 +1,9 @@
+import 'dart:convert';
+
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:weatherapp/domain/data_models/value_objects.dart';
+import 'package:weatherapp/domain/data_models/city_name_and_favorite.dart';
 import 'package:weatherapp/domain/repositories/i_local_repository.dart';
 import 'package:weatherapp/domain/repositories/repository_failures.dart';
 
@@ -13,8 +15,9 @@ class SharedPrefRepository implements ILocalRepository {
   SharedPrefRepository(this.sharedPreferences);
 
   @override
-  Future<Either<RepositoryFailure, Set<CityName>>> loadCitySet() {
-    final List<String>? cityList;
+  Future<Either<RepositoryFailure, List<CityNameAndFavorite>>>
+      loadCitySet() async {
+    List<String>? cityList;
     try {
       cityList = sharedPreferences.getStringList(cachedCityList);
     } on TypeError catch (_) {
@@ -26,44 +29,49 @@ class SharedPrefRepository implements ILocalRepository {
       return Future.value(const Left(RepositoryFailure.notFound()));
     }
 
-    Set<CityName> cityNames =
-        cityList.map((cityName) => CityName(cityName)).toSet();
-
-    if (cityNames.any((city) => !city.isValid())) {
+    final List<CityNameAndFavorite> citiesNameAndFavorite;
+    try {
+      citiesNameAndFavorite = cityList
+          .map((city) => CityNameAndFavorite.fromJson(jsonDecode(city)))
+          .toList();
+    } on FormatException catch (_) {
+      return Future.value(
+          const Left(RepositoryFailure.invalidDatabaseStructure()));
+    } on TypeError catch (_) {
       return Future.value(
           const Left(RepositoryFailure.invalidDatabaseStructure()));
     }
 
-    return Future.value(right(cityNames));
+    return Future.value(right(citiesNameAndFavorite));
   }
 
   @override
-  Future<Either<RepositoryFailure, Unit>> saveCity(CityName cityName) async {
-    Either<RepositoryFailure, Set<CityName>> cityNamesOrFailure =
-        await loadCitySet();
+  Future<Either<RepositoryFailure, Unit>> saveCity(
+      CityNameAndFavorite cityNameAndFavorite) async {
+    var cityNamesOrFailure = await loadCitySet();
 
     return Future.value(cityNamesOrFailure.fold((failure) async {
       if (const RepositoryFailure.notFound() == failure) {
-        await saveListWithLowerCase([
-          cityName.value
-              .getOrElse(() => throw const RepositoryFailure.unexpected())
-        ]);
+        await saveListWithLowerCase([cityNameAndFavorite]);
         return right(unit);
       }
       return left(failure);
-    }, (r) {
-      r.add(cityName);
-      List<String> cityNames = r
-          .map((e) => e.value
-              .getOrElse(() => throw const RepositoryFailure.unexpected()))
-          .toList();
-      saveListWithLowerCase(cityNames);
+    }, (citiesNamesAndFavorite) {
+      final int sameCityIndex = citiesNamesAndFavorite.indexWhere((element) =>
+          element.cityName == cityNameAndFavorite.cityName.toLowerCase());
+
+      sameCityIndex == -1
+          ? citiesNamesAndFavorite.add(cityNameAndFavorite)
+          : citiesNamesAndFavorite[sameCityIndex] = cityNameAndFavorite;
+
+      saveListWithLowerCase(citiesNamesAndFavorite);
       return right(unit);
     }));
   }
 
-  Future<void> saveListWithLowerCase(List<String> cities) async {
-    sharedPreferences.setStringList(
-        cachedCityList, cities.map((city) => city.toLowerCase()).toList());
+  Future<void> saveListWithLowerCase(
+      List<CityNameAndFavorite> citiesNamesAndFavorite) async {
+    sharedPreferences.setStringList(cachedCityList,
+        citiesNamesAndFavorite.map((city) => jsonEncode(city)).toList());
   }
 }
