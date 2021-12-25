@@ -19,7 +19,6 @@ class WeatherTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final citiesOverviewBloc = getIt<CitiesOverviewBloc>();
     return ListTile(
       title: Text(word),
       leading: Icon(
@@ -30,15 +29,14 @@ class WeatherTile extends StatelessWidget {
         const Icon(Icons.edit),
         const SizedBox(width: 12),
         IconButton(
-            onPressed: () => _showDeleteDialog(context, citiesOverviewBloc),
+            onPressed: () => _showDeleteDialog(context),
             icon: const Icon(Icons.delete))
       ]),
       onTap: onTap,
     );
   }
 
-  void _showDeleteDialog(
-      BuildContext context, CitiesOverviewBloc citiesOverviewBloc) {
+  void _showDeleteDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) {
@@ -56,8 +54,8 @@ class WeatherTile extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                citiesOverviewBloc
-                    .add(CitiesOverviewEvent.removed(cityWeather));
+                getIt<CitiesOverviewBloc>()
+                    .add(CitiesOverviewEvent.deleted(cityWeather));
                 Navigator.pop(context);
               },
               child: const Text('DELETE'),

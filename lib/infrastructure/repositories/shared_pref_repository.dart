@@ -16,7 +16,7 @@ class SharedPrefRepository implements ILocalRepository {
 
   @override
   Future<Either<RepositoryFailure, List<CityNameAndFavorite>>>
-      loadCitySet() async {
+      loadCityList() async {
     List<String>? cityList;
     try {
       cityList = sharedPreferences.getStringList(cachedCityList);
@@ -48,7 +48,7 @@ class SharedPrefRepository implements ILocalRepository {
   @override
   Future<Either<RepositoryFailure, Unit>> saveCity(
       CityNameAndFavorite cityNameAndFavorite) async {
-    var cityNamesOrFailure = await loadCitySet();
+    var cityNamesOrFailure = await loadCityList();
 
     return Future.value(cityNamesOrFailure.fold((failure) async {
       if (const RepositoryFailure.notFound() == failure) {
@@ -73,5 +73,21 @@ class SharedPrefRepository implements ILocalRepository {
       List<CityNameAndFavorite> citiesNamesAndFavorite) async {
     sharedPreferences.setStringList(cachedCityList,
         citiesNamesAndFavorite.map((city) => jsonEncode(city)).toList());
+  }
+
+  @override
+  Future<Either<RepositoryFailure, Unit>> deleteCity(
+      CityNameAndFavorite cityNameAndFavorite) async {
+    var citiesOrFailure = await loadCityList();
+    return citiesOrFailure.fold((failure) => left(failure), (cities) {
+      var cityToDeleteIndex = cities
+          .indexWhere((city) => city.cityName == cityNameAndFavorite.cityName);
+      if (-1 == cityToDeleteIndex) {
+        return left(const RepositoryFailure.notFound());
+      } else {
+        cities.removeAt(cityToDeleteIndex);
+        return right(unit);
+      }
+    });
   }
 }

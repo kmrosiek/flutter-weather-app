@@ -17,13 +17,14 @@ class CitiesOverviewBloc
     extends Bloc<CitiesOverviewEvent, CitiesOverviewState> {
   final IRemoteRepository weatherClient;
   final ILocalRepository localRepository;
+  List<CityWeather> citiesWeather = [];
 
   CitiesOverviewBloc(
       {required this.weatherClient, required this.localRepository})
       : super(const _Initial()) {
     on<_FetchData>((event, emit) async {
       Either<RepositoryFailure, List<CityNameAndFavorite>> citiesOrFailure =
-          await localRepository.loadCitySet();
+          await localRepository.loadCityList();
 
       await citiesOrFailure.fold(
           (failure) async =>
@@ -35,7 +36,7 @@ class CitiesOverviewBloc
             .toList();
 
         var futures = Future.wait(citiesFutures);
-        List<CityWeather> citiesWeather = (await futures).toList();
+        citiesWeather = (await futures).toList();
         var indexOfInvalid =
             citiesWeather.indexWhere((cityWeather) => !cityWeather.isValid());
         emit(indexOfInvalid == -1
@@ -53,6 +54,21 @@ class CitiesOverviewBloc
               (failure) =>
                   emit(CitiesOverviewState.favoriteSwitchFailure(failure)),
               (r) => null);
+    });
+    on<_Deleted>((event, emit) async {
+      var successOrFailure = await localRepository.deleteCity(
+          CityNameAndFavorite(
+              cityName: event.cityWeather.getCityNameOrThrow(),
+              favorite: event.cityWeather.favorite));
+
+      emit(successOrFailure
+          .fold((failure) => CitiesOverviewState.weatherRetrieveError(failure),
+              (success) {
+        citiesWeather.removeWhere((city) =>
+            city.getCityNameOrThrow() ==
+            event.cityWeather.getCityNameOrThrow());
+        return CitiesOverviewState.weatherRetrieveSuccess(citiesWeather);
+      }));
     });
   }
 }

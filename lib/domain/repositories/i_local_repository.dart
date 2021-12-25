@@ -5,5 +5,7 @@ import 'package:weatherapp/domain/repositories/repository_failures.dart';
 abstract class ILocalRepository {
   Future<Either<RepositoryFailure, Unit>> saveCity(
       CityNameAndFavorite cityNameAndFavorite);
-  Future<Either<RepositoryFailure, List<CityNameAndFavorite>>> loadCitySet();
+  Future<Either<RepositoryFailure, Unit>> deleteCity(
+      CityNameAndFavorite cityNameAndFavorite);
+  Future<Either<RepositoryFailure, List<CityNameAndFavorite>>> loadCityList();
 }
