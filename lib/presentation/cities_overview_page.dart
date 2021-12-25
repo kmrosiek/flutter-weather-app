@@ -66,6 +66,7 @@ class _CitiesOverviewState extends State<CitiesOverview> {
                     String word = cities[index].getCityNameOrThrow();
                     bool isSaved = savedWords.contains(word);
                     return WeatherTile(
+                        cityWeather: cities[index],
                         word: word,
                         isSaved: isSaved,
                         onTap: () {
