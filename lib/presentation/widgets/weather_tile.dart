@@ -55,7 +55,7 @@ class WeatherTile extends StatelessWidget {
         return AlertDialog(
           title: const Text('Deleting city from the list'),
           content: Text(
-            'Selected city: ${cityWeather.getCityNameOrThrow()}',
+            'Selected city: ${cityWeather.getCityNameOrThrow().toFirstCapital()}',
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
           ),

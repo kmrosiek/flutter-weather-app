@@ -20,7 +20,16 @@ class _CitiesOverviewState extends State<CitiesOverview> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cities Overview'),
-        actions: const [Icon(Icons.sort)],
+        actions: [
+          BlocBuilder<CitiesOverviewBloc, CitiesOverviewState>(
+              builder: (context, state) => IconButton(
+                  onPressed: () => getIt<CitiesOverviewBloc>()
+                      .add(const CitiesOverviewEvent.switchSort()),
+                  icon: Icon(state.sortedByFavorite
+                      ? Icons.favorite
+                      : Icons.favorite_border))),
+          const SizedBox(width: 16.0)
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -33,59 +42,45 @@ class _CitiesOverviewState extends State<CitiesOverview> {
         tooltip: 'Add city',
         child: const Icon(Icons.add),
       ),
-      body: BlocConsumer<CitiesOverviewBloc, CitiesOverviewState>(
-          //listenWhen: (p, c) => p.repositoryFailure != c.repositoryFailure,
-          listener: (context, state) => null,
+      body: BlocBuilder<CitiesOverviewBloc, CitiesOverviewState>(
           builder: (context, state) {
-            if (state.isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
+        if (state.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-            if (state.repositoryFailure.isSome() ||
-                state.citiesWeather.isEmpty) {
-              return Center(
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                    const Icon(Icons.image_not_supported, size: 60),
-                    const SizedBox(height: 12.0),
-                    if (state.repositoryFailure.isNone())
-                      const Text('No weather saved yet.'),
-                    Text(state.repositoryFailure.fold(() => 'Unexpected Error',
-                        (failure) {
-                      return failure.maybeMap(
-                          invalidArgument: (_) =>
-                              'Weather values are out of range',
-                          noInternet: (_) => 'No Internet Access',
-                          invalidDatabaseStructure: (_) =>
-                              'Internal Storage Error',
-                          orElse: () => 'Unexpected Error');
-                    })),
-                  ]));
-            }
-            var cities = state.citiesWeather;
-            return Column(
-              children: [
-                ElevatedButton(
-                    onPressed: () => context
-                        .read<CitiesOverviewBloc>()
-                        .add(CitiesOverviewEvent.deleted(cities[0])),
-                    child: const Text('Remove')),
-                Expanded(
-                  child: ListView.separated(
-                    itemCount: cities.length,
-                    separatorBuilder: (BuildContext context, int index) =>
-                        const Divider(),
-                    itemBuilder: (BuildContext context, int index) {
-                      return WeatherTile(
-                        cityWeather: cities[index],
-                      );
-                    },
-                  ),
-                ),
-              ],
+        var selectedCities = state.sortedByFavorite
+            ? state.citiesWeather.where((city) => city.favorite).toList()
+            : state.citiesWeather;
+
+        if (state.repositoryFailure.isSome() || selectedCities.isEmpty) {
+          return Center(
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                const Icon(Icons.image_not_supported, size: 60),
+                const SizedBox(height: 12.0),
+                if (state.repositoryFailure.isNone())
+                  const Text('No weather to show'),
+                Text(state.repositoryFailure.fold(() => '', (failure) {
+                  return failure.maybeMap(
+                      invalidArgument: (_) => 'Weather values are out of range',
+                      noInternet: (_) => 'No Internet Access',
+                      invalidDatabaseStructure: (_) => 'Internal Storage Error',
+                      orElse: () => 'Unexpected Error');
+                })),
+              ]));
+        }
+        return ListView.separated(
+          itemCount: selectedCities.length,
+          separatorBuilder: (BuildContext context, int index) =>
+              const Divider(),
+          itemBuilder: (BuildContext context, int index) {
+            return WeatherTile(
+              cityWeather: selectedCities[index],
             );
-          }),
+          },
+        );
+      }),
     );
   }
 }

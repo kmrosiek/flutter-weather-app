@@ -118,5 +118,9 @@ class CitiesOverviewBloc
       cities[indexOfEdited] = event.newCity;
       emit(state.copyWith(citiesWeather: cities));
     });
+
+    on<_SwitchSort>((event, emit) async {
+      emit(state.copyWith(sortedByFavorite: !state.sortedByFavorite));
+    });
   }
 }
