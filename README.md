@@ -8,12 +8,12 @@ Weather app uses Open Weather Map to fetch information about weather in cities.
 
 ## Implementation
 
-✅ Layered Architecture
-✅ Dependency inversion - kept inner layers independent
-✅ Bloc used for State Management <img src="https://raw.githubusercontent.com/felangel/bloc/master/docs/assets/flutter_bloc_logo_full.png" height="20" alt="Flutter Bloc Package" />
-✅ Unit tests
-✅ Retrofit used to generate HTTP requests
-✅ Injectable and GetIt packages used for Dependency Injection.
+✅ Layered Architecture  
+✅ Dependency inversion - kept inner layers independent  
+✅ Bloc used for State Management <img src="https://raw.githubusercontent.com/felangel/bloc/master/docs/assets/flutter_bloc_logo_full.png" height="30" alt="Flutter Bloc Package" />  
+✅ Unit tests  
+✅ Retrofit used to generate HTTP requests  
+✅ Injectable and GetIt packages used for Dependency Injection.  
 
 ## Assumptions
 ✅ City is only valid if Open Weather API returns valid response containing valid weather data
