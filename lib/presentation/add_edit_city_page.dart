@@ -17,7 +17,9 @@ class AddEditCityPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final isFavorite = useState(false);
-    final cityController = useTextEditingController();
+    final cityController = useTextEditingController(
+        text: cityWeatherOption.fold(
+            () => '', (city) => city.getCityNameOrThrow().toFirstCapital()));
     return Scaffold(
       appBar: AppBar(
         title: Text((cityWeatherOption.isSome() ? 'Edit' : 'Add') + ' City'),
@@ -45,15 +47,10 @@ class AddEditCityPage extends HookWidget {
                   ),
                   Expanded(
                     child: TextFormField(
-                      decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Enter City'),
-                      controller: cityController
-                        ..text = cityWeatherOption.fold(
-                            () => '',
-                            (city) =>
-                                city.getCityNameOrThrow().toFirstCapital()),
-                    ),
+                        decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Enter City'),
+                        controller: cityController),
                   ),
                 ],
               ),
