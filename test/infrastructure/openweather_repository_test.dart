@@ -7,7 +7,7 @@ import 'package:weatherapp/domain/core/network_info.dart';
 import 'package:weatherapp/domain/repositories/i_api_client.dart';
 import 'package:weatherapp/domain/repositories/repository_failures.dart';
 import 'package:weatherapp/infrastructure/repositories/openweather_repository.dart';
-import 'dio_error_generator_test.dart';
+import 'dio_error_generator.dart';
 import 'mocked_objects.dart';
 import 'openweather_repository_test.mocks.dart';
 
