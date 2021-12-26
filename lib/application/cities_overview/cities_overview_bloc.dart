@@ -12,7 +12,7 @@ part 'cities_overview_event.dart';
 part 'cities_overview_state.dart';
 part 'cities_overview_bloc.freezed.dart';
 
-@injectable
+@singleton
 class CitiesOverviewBloc
     extends Bloc<CitiesOverviewEvent, CitiesOverviewState> {
   final IRemoteRepository weatherClient;
@@ -20,28 +20,30 @@ class CitiesOverviewBloc
 
   CitiesOverviewBloc(
       {required this.weatherClient, required this.localRepository})
-      : super(const _Initial()) {
+      : super(CitiesOverviewState.initial()) {
     on<_FetchData>((event, emit) async {
       Either<RepositoryFailure, List<CityNameAndFavorite>> citiesOrFailure =
-          await localRepository.loadCitySet();
+          await localRepository.loadCityList();
 
       await citiesOrFailure.fold(
-          (failure) async =>
-              emit(CitiesOverviewState.weatherRetrieveError(failure)),
-          (cities) async {
+          (failure) async => emit(state.copyWith(
+              repositoryFailure: some(failure),
+              isLoading: false)), (cities) async {
         var citiesFutures = cities
             .map((city) => CityWeather.create(
                 cityName: city.cityName, favor: city.favorite))
             .toList();
 
         var futures = Future.wait(citiesFutures);
-        List<CityWeather> citiesWeather = (await futures).toList();
+        var citiesWeather = (await futures).toList();
         var indexOfInvalid =
             citiesWeather.indexWhere((cityWeather) => !cityWeather.isValid());
         emit(indexOfInvalid == -1
-            ? CitiesOverviewState.weatherRetrieveSuccess(citiesWeather)
-            : CitiesOverviewState.weatherRetrieveError(
-                citiesWeather[indexOfInvalid].getFailureOrThrow()));
+            ? state.copyWith(citiesWeather: citiesWeather, isLoading: false)
+            : state.copyWith(
+                isLoading: false,
+                repositoryFailure:
+                    some(citiesWeather[indexOfInvalid].getFailureOrThrow())));
       });
     });
 
@@ -50,9 +52,49 @@ class CitiesOverviewBloc
               cityName: event.cityWeather.getCityNameOrThrow(),
               favorite: event.cityWeather.favorite)))
           .fold(
-              (failure) =>
-                  emit(CitiesOverviewState.favoriteSwitchFailure(failure)),
-              (r) => null);
+              (failure) => emit(CitiesOverviewState.initial()
+                  .copyWith(repositoryFailure: some(failure))), (_) {
+        var indexOfSwitchedCity = state.citiesWeather.indexWhere((city) =>
+            city.getCityNameOrThrow() ==
+            event.cityWeather.getCityNameOrThrow());
+        if (-1 == indexOfSwitchedCity) {
+          emit(CitiesOverviewState.initial().copyWith(
+              repositoryFailure:
+                  some(const RepositoryFailure.invalidDatabaseStructure())));
+          return;
+        }
+        //citiesWeather[indexOfSwitchedCity].favorite =
+        //event.cityWeather.favorite;
+        //TODO
+      });
+    });
+    on<_Deleted>((event, emit) async {
+      var successOrFailure = await localRepository.deleteCity(
+          CityNameAndFavorite(
+              cityName: event.cityWeather.getCityNameOrThrow(),
+              favorite: event.cityWeather.favorite));
+
+      emit(successOrFailure
+          .fold((failure) => state.copyWith(repositoryFailure: some(failure)),
+              (success) {
+        var citiesWeather = List<CityWeather>.from(state.citiesWeather);
+        citiesWeather.removeWhere((city) =>
+            city.getCityNameOrThrow() ==
+            event.cityWeather.getCityNameOrThrow());
+        return state.copyWith(citiesWeather: citiesWeather);
+      }));
+    });
+
+    on<_AddedOrEdited>((event, emit) async {
+      var cities = List<CityWeather>.from(state.citiesWeather);
+      var indexOfEdited = cities.indexWhere((city) =>
+          city.getCityNameOrThrow() == event.cityWeather.getCityNameOrThrow());
+      if (indexOfEdited == -1) {
+        cities.add(event.cityWeather);
+      } else {
+        cities[indexOfEdited] = event.cityWeather;
+      }
+      emit(state.copyWith(citiesWeather: cities));
     });
   }
 }

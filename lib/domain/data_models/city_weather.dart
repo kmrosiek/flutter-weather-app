@@ -41,7 +41,8 @@ class CityWeather {
 
     return other is CityWeather &&
         other.value == value &&
-        other._cityName == _cityName;
+        other._cityName == _cityName &&
+        other.favorite == favorite;
   }
 
   @override
