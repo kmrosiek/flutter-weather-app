@@ -7,14 +7,9 @@ import 'package:weatherapp/injection.dart';
 import 'package:weatherapp/presentation/add_edit_city_page.dart';
 import 'package:weatherapp/presentation/widgets/weather_tile.dart';
 
-class CitiesOverview extends StatefulWidget {
-  const CitiesOverview({Key? key}) : super(key: key);
+class CitiesOverviewPage extends StatelessWidget {
+  const CitiesOverviewPage({Key? key}) : super(key: key);
 
-  @override
-  _CitiesOverviewState createState() => _CitiesOverviewState();
-}
-
-class _CitiesOverviewState extends State<CitiesOverview> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
