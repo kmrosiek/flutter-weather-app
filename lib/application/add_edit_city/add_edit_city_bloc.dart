@@ -32,8 +32,7 @@ class AddEditCityBloc extends Bloc<AddEditCityEvent, AddEditCityState> {
         await CityWeather.create(cityName: event.cityName);
 
     if (!cityWeather.isValid()) {
-      emit(AddEditCityState.weatherRetrieveError(
-          cityWeather.getFailureOrThrow()));
+      emit(AddEditCityState.submissionFailure(cityWeather.getFailureOrThrow()));
       return;
     }
 
@@ -42,7 +41,7 @@ class AddEditCityBloc extends Bloc<AddEditCityEvent, AddEditCityState> {
         favorite: cityWeather.favorite));
 
     emit(failureOrSuccess.fold(
-        (failure) => AddEditCityState.weatherRetrieveError(failure),
-        (success) => const AddEditCityState.weatherRetrieveSuccess()));
+        (failure) => AddEditCityState.submissionFailure(failure),
+        (success) => AddEditCityState.submissionSuccess(cityWeather)));
   }
 }

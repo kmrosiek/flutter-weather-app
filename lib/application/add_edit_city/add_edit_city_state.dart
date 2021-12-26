@@ -4,8 +4,8 @@ part of 'add_edit_city_bloc.dart';
 class AddEditCityState with _$AddEditCityState {
   const factory AddEditCityState.initial() = _Initial;
   const factory AddEditCityState.loading() = _Loading;
-  const factory AddEditCityState.weatherRetrieveError(
-      RepositoryFailure repositoryFailure) = _WeatherRetrieveError;
-  const factory AddEditCityState.weatherRetrieveSuccess() =
-      _WeatherRetrieveSuccess;
+  const factory AddEditCityState.submissionFailure(
+      RepositoryFailure repositoryFailure) = _SubmissionFailure;
+  const factory AddEditCityState.submissionSuccess(CityWeather cityWeather) =
+      _SubmissionSuccess;
 }
