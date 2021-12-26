@@ -9,14 +9,14 @@ import 'package:weatherapp/presentation/add_edit_city_page.dart';
 
 class WeatherTile extends StatelessWidget {
   final String word;
-  final bool isSaved;
+  final bool isFavorite;
   final CityWeather cityWeather;
   final void Function() onTap;
 
   const WeatherTile(
       {Key? key,
       required this.word,
-      required this.isSaved,
+      required this.isFavorite,
       required this.cityWeather,
       required this.onTap})
       : super(key: key);
@@ -26,8 +26,8 @@ class WeatherTile extends StatelessWidget {
     return ListTile(
       title: Text(word),
       leading: Icon(
-        isSaved ? Icons.favorite : Icons.favorite_border,
-        color: isSaved ? Colors.red : null,
+        isFavorite ? Icons.favorite : Icons.favorite_border,
+        color: isFavorite ? Colors.red : null,
       ),
       trailing: Row(mainAxisSize: MainAxisSize.min, children: [
         IconButton(

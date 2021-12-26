@@ -28,8 +28,8 @@ class AddEditCityBloc extends Bloc<AddEditCityEvent, AddEditCityState> {
       AddEditCityEvent event, Emitter<AddEditCityState> emit) async {
     emit(const AddEditCityState.loading());
 
-    CityWeather cityWeather =
-        await CityWeather.create(cityName: event.cityName);
+    CityWeather cityWeather = await CityWeather.create(
+        cityName: event.cityName, favor: event.favorite);
 
     if (!cityWeather.isValid()) {
       emit(AddEditCityState.submissionFailure(cityWeather.getFailureOrThrow()));

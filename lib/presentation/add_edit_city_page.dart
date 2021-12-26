@@ -15,6 +15,7 @@ class AddEditCityPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isFavorite = useState(false);
     final cityController = useTextEditingController();
     return Scaffold(
       appBar: AppBar(
@@ -27,19 +28,38 @@ class AddEditCityPage extends HookWidget {
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 20, vertical: 8.0),
-              child: TextFormField(
-                decoration: const InputDecoration(
-                    border: OutlineInputBorder(), labelText: 'Enter City'),
-                controller: cityController
-                  ..text = cityWeatherOption.fold(
-                      () => '', (city) => city.getCityNameOrThrow()),
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: IconButton(
+                      icon: Icon(
+                          isFavorite.value
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          color: isFavorite.value ? Colors.red : null,
+                          size: 40),
+                      onPressed: () => isFavorite.value = !isFavorite.value,
+                    ),
+                  ),
+                  Expanded(
+                    child: TextFormField(
+                      decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Enter City'),
+                      controller: cityController
+                        ..text = cityWeatherOption.fold(
+                            () => '', (city) => city.getCityNameOrThrow()),
+                    ),
+                  ),
+                ],
               ),
             ),
             ElevatedButton(
                 onPressed: () {
                   context.read<AddEditCityBloc>().add(
-                      AddEditCityEvent.cityNameSubmitted(
-                          cityController.text.toLowerCase()));
+                      AddEditCityEvent.citySubmitted(
+                          cityController.text.toLowerCase(), isFavorite.value));
                 },
                 child: const Text('Save')),
             BlocConsumer<AddEditCityBloc, AddEditCityState>(
