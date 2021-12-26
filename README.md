@@ -3,7 +3,11 @@ Weather app uses Open Weather Map to fetch information about weather in cities.
 
 ## Demo
 
-![Alt Text](https://gfycat.com/zanyregalafricanfisheagle)
+<img src="https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif" width="40" height="40" />
+a
+<p align="center">
+  <img width="30%" src="https://s10.gifyu.com/images/weatherApp.gif">
+</p>
 
 ## Implementation
 
