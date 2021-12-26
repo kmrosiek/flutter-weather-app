@@ -18,7 +18,7 @@ class AddEditCityPage extends HookWidget {
     final cityController = useTextEditingController();
     return Scaffold(
       appBar: AppBar(
-        title: Text(cityWeatherOption.isSome() ? 'Edit' : 'Add'),
+        title: Text((cityWeatherOption.isSome() ? 'Edit' : 'Add') + ' City'),
       ),
       body: Center(
         child: Column(
@@ -30,20 +30,25 @@ class AddEditCityPage extends HookWidget {
               child: TextFormField(
                 decoration: const InputDecoration(
                     border: OutlineInputBorder(), labelText: 'Enter City'),
-                controller: cityController,
+                controller: cityController
+                  ..text = cityWeatherOption.fold(
+                      () => '', (city) => city.getCityNameOrThrow()),
               ),
             ),
             ElevatedButton(
                 onPressed: () {
                   context.read<AddEditCityBloc>().add(
-                      AddEditCityEvent.cityNameSubmitted(cityController.text));
+                      AddEditCityEvent.cityNameSubmitted(
+                          cityController.text.toLowerCase()));
                 },
-                child: const Text('Submit')),
+                child: const Text('Save')),
             BlocConsumer<AddEditCityBloc, AddEditCityState>(
                 listener: (context, state) => state.maybeMap(
                     submissionSuccess: (s) {
-                      getIt<CitiesOverviewBloc>().add(
-                          CitiesOverviewEvent.addedOrEdited(s.cityWeather));
+                      getIt<CitiesOverviewBloc>().add(cityWeatherOption.fold(
+                          () => CitiesOverviewEvent.added(s.cityWeather),
+                          (city) =>
+                              CitiesOverviewEvent.edited(city, s.cityWeather)));
                       Navigator.pop(context);
                     },
                     orElse: () {}),
