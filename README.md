@@ -1,5 +1,5 @@
 # Weather App
-Weather app uses Open Weather Map to fetch information about weather in cities.
+The weather app uses Open Weather Map to fetch information about the weather in cities.
 
 # Table of contents
 1. [Demo](#demo)
@@ -23,15 +23,15 @@ Weather app uses Open Weather Map to fetch information about weather in cities.
 ✅ Injectable and GetIt packages used for Dependency Injection.  
 
 ## Assumptions <a name="assumptions"></a>
-✅ City is only valid if Open Weather API returns valid response containing valid weather data  
-✅ Persistance Storage - data is saved to the memory immediately a user adds or modifies entries.
+✅ City is only valid if Open Weather API returns a valid response containing valid weather data  
+✅ Persistance Storage - data is saved to the memory immediately after a user adds or modifies entries.
 
 ## Aspects to Fix/Improve <a name="aspects"></a>
 ❗️ Single Source of Truth Rule is broken - CitiesOverviewBloc and SharedPrefereces keep data and they can be modified separately. There should be a single place to modify data - CitiesOverviewBloc and SharedPreferenced should only reflect changes to it.  
-❗️ Having City validated by Open Weather API has many negative implications: added boilerplate code and made code more complicated. Another way of validating city could be considered.  
-❗️ Shared Preferences were used for the simplicity. Consider replacing with local database.
+❗️ Having City validated by Open Weather API has many negative implications: added boilerplate code and made code more complicated. Another way of validating the city could be considered.  
+❗️ Shared Preferences were used for simplicity. Consider replacing it with local database.
 
 ## Todos <a name="todos"></a>
 - [ ] Add bloc unit tests
 - [ ] Add Widget tests
-- [ ] Add Intergration tests
+- [ ] Add Integration tests
