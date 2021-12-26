@@ -6,6 +6,7 @@ import 'package:weatherapp/application/add_edit_city/add_edit_city_bloc.dart';
 import 'package:weatherapp/application/cities_overview/cities_overview_bloc.dart';
 import 'package:weatherapp/domain/data_models/city_weather.dart';
 import 'package:weatherapp/injection.dart';
+import 'package:weatherapp/presentation/utils.dart';
 
 class AddEditCityPage extends HookWidget {
   const AddEditCityPage({Key? key, required this.cityWeatherOption})
@@ -49,7 +50,9 @@ class AddEditCityPage extends HookWidget {
                           labelText: 'Enter City'),
                       controller: cityController
                         ..text = cityWeatherOption.fold(
-                            () => '', (city) => city.getCityNameOrThrow()),
+                            () => '',
+                            (city) =>
+                                city.getCityNameOrThrow().toFirstCapital()),
                     ),
                   ),
                 ],

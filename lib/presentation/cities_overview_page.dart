@@ -23,7 +23,7 @@ class _CitiesOverviewState extends State<CitiesOverview> {
         actions: const [Icon(Icons.sort)],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
+        onPressed: () {
           Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => BlocProvider(
                     create: (context) => getIt<AddEditCityBloc>(),
@@ -54,6 +54,8 @@ class _CitiesOverviewState extends State<CitiesOverview> {
                     Text(state.repositoryFailure.fold(() => 'Unexpected Error',
                         (failure) {
                       return failure.maybeMap(
+                          invalidArgument: (_) =>
+                              'Weather values are out of range',
                           noInternet: (_) => 'No Internet Access',
                           invalidDatabaseStructure: (_) =>
                               'Internal Storage Error',
@@ -75,16 +77,9 @@ class _CitiesOverviewState extends State<CitiesOverview> {
                     separatorBuilder: (BuildContext context, int index) =>
                         const Divider(),
                     itemBuilder: (BuildContext context, int index) {
-                      String word = cities[index].getCityNameOrThrow();
                       return WeatherTile(
-                          isFavorite: cities[index].favorite,
-                          cityWeather: cities[index],
-                          word: word,
-                          onTap: () {
-                            context.read<CitiesOverviewBloc>().add(
-                                CitiesOverviewEvent.favoriteSwitched(
-                                    cities[index]));
-                          });
+                        cityWeather: cities[index],
+                      );
                     },
                   ),
                 ),

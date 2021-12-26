@@ -6,28 +6,30 @@ import 'package:weatherapp/application/cities_overview/cities_overview_bloc.dart
 import 'package:weatherapp/domain/data_models/city_weather.dart';
 import 'package:weatherapp/injection.dart';
 import 'package:weatherapp/presentation/add_edit_city_page.dart';
+import 'package:weatherapp/presentation/weather_details_page.dart';
+import 'package:weatherapp/presentation/utils.dart';
 
 class WeatherTile extends StatelessWidget {
-  final String word;
-  final bool isFavorite;
   final CityWeather cityWeather;
-  final void Function() onTap;
 
-  const WeatherTile(
-      {Key? key,
-      required this.word,
-      required this.isFavorite,
-      required this.cityWeather,
-      required this.onTap})
-      : super(key: key);
+  const WeatherTile({
+    Key? key,
+    required this.cityWeather,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(word),
-      leading: Icon(
-        isFavorite ? Icons.favorite : Icons.favorite_border,
-        color: isFavorite ? Colors.red : null,
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => WeatherDetailsPage(cityWeather: cityWeather))),
+      title: Text(cityWeather.getCityNameOrThrow().toFirstCapital()),
+      leading: IconButton(
+        icon: Icon(
+            cityWeather.favorite ? Icons.favorite : Icons.favorite_border,
+            color: cityWeather.favorite ? Colors.red : null),
+        onPressed: () => context
+            .read<CitiesOverviewBloc>()
+            .add(CitiesOverviewEvent.favoriteSwitched(cityWeather)),
       ),
       trailing: Row(mainAxisSize: MainAxisSize.min, children: [
         IconButton(
@@ -43,7 +45,6 @@ class WeatherTile extends StatelessWidget {
             onPressed: () => _showDeleteDialog(context),
             icon: const Icon(Icons.delete))
       ]),
-      onTap: onTap,
     );
   }
 

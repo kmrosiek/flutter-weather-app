@@ -1,15 +1,10 @@
 import 'package:bloc/bloc.dart';
-import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:weatherapp/domain/data_models/city_name_and_favorite.dart';
 import 'package:weatherapp/domain/data_models/city_weather.dart';
-import 'package:weatherapp/domain/data_models/value_objects.dart';
-import 'package:weatherapp/domain/data_models/weather.dart';
 import 'package:weatherapp/domain/repositories/i_local_repository.dart';
-import 'package:weatherapp/domain/repositories/i_remote_repository.dart';
 import 'package:weatherapp/domain/repositories/repository_failures.dart';
-import 'package:weatherapp/injection.dart';
 
 part 'add_edit_city_event.dart';
 part 'add_edit_city_state.dart';
