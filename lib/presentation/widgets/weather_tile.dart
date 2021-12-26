@@ -1,8 +1,11 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/src/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:weatherapp/application/add_edit_city/add_edit_city_bloc.dart';
 import 'package:weatherapp/application/cities_overview/cities_overview_bloc.dart';
 import 'package:weatherapp/domain/data_models/city_weather.dart';
 import 'package:weatherapp/injection.dart';
+import 'package:weatherapp/presentation/add_edit_city_page.dart';
 
 class WeatherTile extends StatelessWidget {
   final String word;
@@ -27,7 +30,14 @@ class WeatherTile extends StatelessWidget {
         color: isSaved ? Colors.red : null,
       ),
       trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-        const Icon(Icons.edit),
+        IconButton(
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => BlocProvider(
+                      create: (context) => getIt<AddEditCityBloc>(),
+                      child:
+                          AddEditCityPage(cityWeatherOption: some(cityWeather)),
+                    ))),
+            icon: const Icon(Icons.edit)),
         const SizedBox(width: 12),
         IconButton(
             onPressed: () => _showDeleteDialog(context),

@@ -85,15 +85,35 @@ class CitiesOverviewBloc
       }));
     });
 
-    on<_AddedOrEdited>((event, emit) async {
+    on<_Added>((event, emit) async {
       var cities = List<CityWeather>.from(state.citiesWeather);
       var indexOfEdited = cities.indexWhere((city) =>
           city.getCityNameOrThrow() == event.cityWeather.getCityNameOrThrow());
       if (indexOfEdited == -1) {
         cities.add(event.cityWeather);
+        emit(state.copyWith(citiesWeather: cities));
       } else {
-        cities[indexOfEdited] = event.cityWeather;
+        //emit(state.copyWith(
+        //repositoryFailure: some(const RepositoryFailure.unexpected())));
+        //TODO should notify user city is already in the list
       }
+    });
+
+    on<_Edited>((event, emit) async {
+      var cities = List<CityWeather>.from(state.citiesWeather);
+      var indexOfEdited = cities.indexWhere((city) =>
+          city.getCityNameOrThrow() == event.oldCity.getCityNameOrThrow());
+      if (indexOfEdited == -1) {
+        emit(state.copyWith(
+            repositoryFailure: some(const RepositoryFailure.unexpected())));
+        return;
+      }
+      var indexOfNew = cities.indexWhere((city) =>
+          city.getCityNameOrThrow() == event.newCity.getCityNameOrThrow());
+      if (indexOfNew != -1) {
+        //TODO should notify user city is already in the list
+      }
+      cities[indexOfEdited] = event.newCity;
       emit(state.copyWith(citiesWeather: cities));
     });
   }
