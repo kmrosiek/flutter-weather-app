@@ -50,6 +50,11 @@ class OpenWeatherRepository implements IRemoteRepository {
       return left(const RepositoryFailure.invalidDatabaseStructure());
     }
 
+    var weather = weatherDto.toDomain();
+    if (!weather.isValid) {
+      return left(const RepositoryFailure.invalidArgument());
+    }
+
     return right(weatherDto.toDomain());
   }
 }

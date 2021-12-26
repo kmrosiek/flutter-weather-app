@@ -16,7 +16,7 @@ class CityWeather {
   static Future<CityWeather> create(
       {required String cityName, bool favor = false}) async {
     CityName cityNameObj = CityName(cityName);
-    if (!cityNameObj.isValid()) {
+    if (!cityNameObj.isValid) {
       return CityWeather._create(
           left(const RepositoryFailure.invalidArgument()), cityNameObj, favor);
     }
@@ -31,7 +31,7 @@ class CityWeather {
     return CityWeather._create(value, _cityName, favorite);
   }
 
-  bool isValid() => value.isRight() && _cityName.isValid();
+  bool isValid() => value.isRight() && _cityName.isValid;
 
   String getCityNameOrThrow() => _cityName.value
       .getOrElse(() => throw const RepositoryFailure.unexpected());

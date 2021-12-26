@@ -5,6 +5,7 @@ import 'package:weatherapp/domain/core/failures.dart';
 import 'package:weatherapp/domain/core/value_validators.dart';
 import 'package:weatherapp/domain/data_models/value_objects.dart';
 import 'package:weatherapp/domain/data_models/weather_value_validators.dart';
+import 'package:weatherapp/domain/repositories/repository_failures.dart';
 
 class Temperature extends ValueObject<double> {
   @override
@@ -14,6 +15,12 @@ class Temperature extends ValueObject<double> {
 
   factory Temperature(double temp) {
     return Temperature._(validateRange(temp, min, max));
+  }
+
+  String get getValueOrThrow {
+    return value
+        .getOrElse(() => throw const RepositoryFailure.unexpected())
+        .toStringAsFixed(0);
   }
 
   const Temperature._(this.value);
@@ -48,8 +55,8 @@ class Humidity extends ValueObject {
 class WindSpeed extends ValueObject {
   @override
   final Either<ValueFailure, double> value;
-  static const double min = 400.0;
-  static const double max = 0.0;
+  static const double min = 0.0;
+  static const double max = 400.0;
 
   factory WindSpeed(double temp) {
     return WindSpeed._(validateRange(temp, min, max));
@@ -66,6 +73,11 @@ class DailyTemperatures {
   factory DailyTemperatures(List<Temperature> temps) {
     return DailyTemperatures._(validateListLength(temps, expectedLength)
         .flatMap(validateListHasNoFailures));
+  }
+
+  bool get isValid {
+    return value.fold((failure) => false,
+        (temps) => temps.indexWhere((temp) => !temp.isValid) == -1);
   }
 
   const DailyTemperatures._(this.value);
