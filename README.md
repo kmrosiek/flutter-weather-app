@@ -1,8 +1,16 @@
-# weatherapp
+# Weather App
+Weather app uses Open Weather Map to fetch information about weather in cities.
 
-A new Flutter project.
+## Demo
 
-## Getting Started
+![Alt Text](https://gfycat.com/zanyregalafricanfisheagle)
+
+## Implementation
+
+✅ Layered Architecture
+✅ Bloc used for State Management
+✅ Unit tested code
+
 
 This project is a starting point for a Flutter application.
 
