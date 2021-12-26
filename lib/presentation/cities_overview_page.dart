@@ -15,9 +15,6 @@ class CitiesOverview extends StatefulWidget {
 }
 
 class _CitiesOverviewState extends State<CitiesOverview> {
-  List<String> words = List.generate(30, (index) => 'Word $index');
-  List<String> savedWords = [];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,25 +51,24 @@ class _CitiesOverviewState extends State<CitiesOverview> {
                     const SizedBox(height: 12.0),
                     if (state.repositoryFailure.isNone())
                       const Text('No weather saved yet.'),
-                    Text(state.citiesWeather.isEmpty
-                        ? 'No weather saved yet.'
-                        : state.repositoryFailure.fold(() => 'Unexpected error',
-                            (failure) {
-                            return failure.maybeMap(
-                                noInternet: (_) => 'No Internet Access',
-                                orElse: () => 'Unexpected error');
-                          })),
+                    Text(state.repositoryFailure.fold(() => 'Unexpected Error',
+                        (failure) {
+                      return failure.maybeMap(
+                          noInternet: (_) => 'No Internet Access',
+                          invalidDatabaseStructure: (_) =>
+                              'Internal Storage Error',
+                          orElse: () => 'Unexpected Error');
+                    })),
                   ]));
             }
             var cities = state.citiesWeather;
-            print('rebuild');
             return Column(
               children: [
                 ElevatedButton(
                     onPressed: () => context
                         .read<CitiesOverviewBloc>()
                         .add(CitiesOverviewEvent.deleted(cities[0])),
-                    child: Text('Remove')),
+                    child: const Text('Remove')),
                 Expanded(
                   child: ListView.separated(
                     itemCount: cities.length,
@@ -80,22 +76,14 @@ class _CitiesOverviewState extends State<CitiesOverview> {
                         const Divider(),
                     itemBuilder: (BuildContext context, int index) {
                       String word = cities[index].getCityNameOrThrow();
-                      bool isSaved = savedWords.contains(word);
                       return WeatherTile(
+                          isFavorite: cities[index].favorite,
                           cityWeather: cities[index],
                           word: word,
-                          isSaved: isSaved,
                           onTap: () {
-                            setState(() {
-                              if (isSaved) {
-                                savedWords.remove(word);
-                              } else {
-                                savedWords.add(word);
-                                context.read<CitiesOverviewBloc>().add(
-                                    CitiesOverviewEvent.favoriteSwitched(
-                                        cities[index]));
-                              }
-                            });
+                            context.read<CitiesOverviewBloc>().add(
+                                CitiesOverviewEvent.favoriteSwitched(
+                                    cities[index]));
                           });
                     },
                   ),

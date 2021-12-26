@@ -19,14 +19,14 @@ class WeatherDto {
     const listSize = DailyTemperatures.expectedLength;
     List<double> daily = List.filled(listSize, 0.0);
     for (int i = 0; i < listSize; i++) {
-      daily[i] = (json['daily'][i]['temp']['day']);
+      daily[i] = (json['daily'][i]['temp']['day'] as num).toDouble();
     }
 
     return WeatherDto(
-        temperature: json['current']['temp'],
-        pressure: json['current']['pressure'],
-        humidity: json['current']['humidity'],
-        windSpeed: json['current']['wind_speed'],
+        temperature: (json['current']['temp'] as num).toDouble(),
+        pressure: (json['current']['pressure'] as num).toInt(),
+        humidity: (json['current']['humidity'] as num).toInt(),
+        windSpeed: (json['current']['wind_speed'] as num).toDouble(),
         daysTemperature: daily);
   }
 

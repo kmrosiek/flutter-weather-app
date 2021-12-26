@@ -48,26 +48,28 @@ class CitiesOverviewBloc
     });
 
     on<_FavoriteSwitched>((event, emit) async {
+      var switchedCity =
+          event.cityWeather.copyWith(favorite: !event.cityWeather.favorite);
       (await localRepository.saveCity(CityNameAndFavorite(
-              cityName: event.cityWeather.getCityNameOrThrow(),
-              favorite: event.cityWeather.favorite)))
+              cityName: switchedCity.getCityNameOrThrow(),
+              favorite: switchedCity.favorite)))
           .fold(
-              (failure) => emit(CitiesOverviewState.initial()
-                  .copyWith(repositoryFailure: some(failure))), (_) {
+              (failure) =>
+                  emit(state.copyWith(repositoryFailure: some(failure))), (_) {
         var indexOfSwitchedCity = state.citiesWeather.indexWhere((city) =>
-            city.getCityNameOrThrow() ==
-            event.cityWeather.getCityNameOrThrow());
+            city.getCityNameOrThrow() == switchedCity.getCityNameOrThrow());
         if (-1 == indexOfSwitchedCity) {
           emit(CitiesOverviewState.initial().copyWith(
               repositoryFailure:
                   some(const RepositoryFailure.invalidDatabaseStructure())));
           return;
         }
-        //citiesWeather[indexOfSwitchedCity].favorite =
-        //event.cityWeather.favorite;
-        //TODO
+        var cities = List<CityWeather>.from(state.citiesWeather);
+        cities[indexOfSwitchedCity] = switchedCity;
+        emit(state.copyWith(citiesWeather: cities));
       });
     });
+
     on<_Deleted>((event, emit) async {
       var successOrFailure = await localRepository.deleteCity(
           CityNameAndFavorite(
