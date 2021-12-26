@@ -1,16 +1,37 @@
-# weatherapp
+# Weather App
+The weather app uses Open Weather Map to fetch information about the weather in cities.
 
-A new Flutter project.
+# Table of contents
+1. [Demo](#demo)
+2. [Implementation](#implementation)
+3. [Assumptions](#assumptions)
+4. [Aspects to Fix/Improve](#aspects)
+5. [Todos](#todos)
 
-## Getting Started
+## Demo <a name="demo"></a>
+<p align="center">
+  <img width="30%" src="https://s10.gifyu.com/images/weatherApp.gif">
+</p>
 
-This project is a starting point for a Flutter application.
+## Implementation <a name="implementation"></a>
 
-A few resources to get you started if this is your first Flutter project:
+✅ Layered Architecture  
+✅ Dependency inversion - kept inner layers independent  
+✅ Bloc used for State Management    <img src="https://raw.githubusercontent.com/felangel/bloc/master/docs/assets/flutter_bloc_logo_full.png" height="20" alt="Flutter Bloc Package" />  
+✅ Unit tests  
+✅ Retrofit used to generate HTTP requests  
+✅ Injectable and GetIt packages used for Dependency Injection.  
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+## Assumptions <a name="assumptions"></a>
+✅ City is only valid if Open Weather API returns a valid response containing valid weather data  
+✅ Persistance Storage - data is saved to the memory immediately after a user adds or modifies entries.
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Aspects to Fix/Improve <a name="aspects"></a>
+❗️ Single Source of Truth Rule is broken - CitiesOverviewBloc and SharedPrefereces keep data and they can be modified separately. There should be a single place to modify data - CitiesOverviewBloc and SharedPreferenced should only reflect changes to it.  
+❗️ Having City validated by Open Weather API has many negative implications: added boilerplate code and made code more complicated. Another way of validating the city could be considered.  
+❗️ Shared Preferences were used for simplicity. Consider replacing it with local database.
+
+## Todos <a name="todos"></a>
+- [ ] Add bloc unit tests
+- [ ] Add Widget tests
+- [ ] Add Integration tests
