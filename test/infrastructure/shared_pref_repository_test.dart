@@ -30,7 +30,7 @@ void main() {
         (realInvocation) => Future.value(right(validWeatherDto.toDomain())));
   });
 
-  group('loadCitySet method', () {
+  group('loadCityList method', () {
     test(
       'should return RepositoryFailure.notFound when key cannot be found.',
       () async {
@@ -39,7 +39,7 @@ void main() {
                 .getStringList(SharedPrefRepository.cachedCityList))
             .thenReturn(null);
         // act
-        final result = await sharedPref.loadCitySet();
+        final result = await sharedPref.loadCityList();
         // assert
         expect(result, left(const RepositoryFailure.notFound()));
       },
@@ -53,7 +53,7 @@ void main() {
                 .getStringList(SharedPrefRepository.cachedCityList))
             .thenReturn(<String>[]);
         // act
-        final result = await sharedPref.loadCitySet();
+        final result = await sharedPref.loadCityList();
         // assert
         expect(result, left(const RepositoryFailure.notFound()));
       },
@@ -67,7 +67,7 @@ void main() {
                 .getStringList(SharedPrefRepository.cachedCityList))
             .thenThrow(TypeError());
         // act
-        final result = await sharedPref.loadCitySet();
+        final result = await sharedPref.loadCityList();
         // assert
         expect(
             result, left(const RepositoryFailure.invalidDatabaseStructure()));
@@ -82,7 +82,7 @@ void main() {
                 .getStringList(SharedPrefRepository.cachedCityList))
             .thenReturn(<String>["Warsaw", ""]);
         // act
-        final result = await sharedPref.loadCitySet();
+        final result = await sharedPref.loadCityList();
         // assert
         expect(
             result, left(const RepositoryFailure.invalidDatabaseStructure()));
@@ -101,7 +101,7 @@ void main() {
                 .getStringList(SharedPrefRepository.cachedCityList))
             .thenReturn([jsonEncode(city1), jsonEncode(city2)]);
         // act
-        final result = await sharedPref.loadCitySet();
+        final result = await sharedPref.loadCityList();
         // assert
         expect(result.getOrElse(() => throw Exception()), [city1, city2]);
       },
@@ -181,6 +181,45 @@ void main() {
         final result = await sharedPref.saveCity(newValueCity);
         // assert
         expect(result, right(unit));
+      },
+    );
+  });
+
+  group('deleteCity', () {
+    const validCity = CityNameAndFavorite(cityName: 'warsaw', favorite: false);
+    test(
+      'should return RepositoryFailure.notFound when city cannot be found',
+      () async {
+        // arrange
+        when(mockSharedPreferences
+                .getStringList(SharedPrefRepository.cachedCityList))
+            .thenReturn(null);
+        // act
+        final result = await sharedPref.deleteCity(validCity);
+        // assert
+        expect(result, left(const RepositoryFailure.notFound()));
+      },
+    );
+
+    test(
+      'should return List of CityNameAndFavorite when SharedPref contains list of valid cities ',
+      () async {
+        var city1 =
+            const CityNameAndFavorite(cityName: 'Warsaw', favorite: false);
+        var city2 =
+            const CityNameAndFavorite(cityName: 'Berlin', favorite: true);
+
+        when(mockSharedPreferences
+                .getStringList(SharedPrefRepository.cachedCityList))
+            .thenReturn([jsonEncode(city1), jsonEncode(city2)]);
+        when(mockSharedPreferences.setStringList(
+                SharedPrefRepository.cachedCityList, [jsonEncode(city1)]))
+            .thenAnswer((_) => Future.value(true));
+        // act
+        await sharedPref.deleteCity(city2);
+        // assert
+        verify(mockSharedPreferences.setStringList(
+            SharedPrefRepository.cachedCityList, [jsonEncode(city1)]));
       },
     );
   });

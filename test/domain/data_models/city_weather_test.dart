@@ -1,7 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:weatherapp/domain/core/failures.dart';
 import 'package:weatherapp/domain/data_models/city_weather.dart';
 import 'package:weatherapp/domain/data_models/weather.dart';
 import 'package:weatherapp/domain/data_models/weather_value_objects.dart';
@@ -39,8 +38,8 @@ void main() {
       CityWeather cityWeather =
           await CityWeather.create(cityName: emptyCityName);
       // assert
-      expect(cityWeather.value,
-          const Left(ValueFailure<String>.empty(failedValue: emptyCityName)));
+      expect(
+          cityWeather.value, left(const RepositoryFailure.invalidArgument()));
     },
   );
 
@@ -68,10 +67,7 @@ void main() {
       CityWeather cityWeather =
           await CityWeather.create(cityName: validCityName);
       // assert
-      expect(
-          cityWeather.value,
-          const Left(
-              ValueFailure<String>.invalidValue(failedValue: validCityName)));
+      expect(cityWeather.value, left(const RepositoryFailure.notFound()));
     },
   );
   test(
