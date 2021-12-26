@@ -23,7 +23,7 @@ Weather app uses Open Weather Map to fetch information about weather in cities.
 ✅ Injectable and GetIt packages used for Dependency Injection.  
 
 ## Assumptions <a name="assumptions"></a>
-✅ City is only valid if Open Weather API returns valid response containing valid weather data
+✅ City is only valid if Open Weather API returns valid response containing valid weather data  
 ✅ Persistance Storage - data is saved to the memory immediately a user adds or modifies entries.
 
 ## Aspects to Fix/Improve <a name="aspects"></a>
