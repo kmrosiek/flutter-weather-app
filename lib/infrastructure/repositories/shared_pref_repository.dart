@@ -79,13 +79,14 @@ class SharedPrefRepository implements ILocalRepository {
   Future<Either<RepositoryFailure, Unit>> deleteCity(
       CityNameAndFavorite cityNameAndFavorite) async {
     var citiesOrFailure = await loadCityList();
-    return citiesOrFailure.fold((failure) => left(failure), (cities) {
+    return citiesOrFailure.fold((failure) => left(failure), (cities) async {
       var cityToDeleteIndex = cities
           .indexWhere((city) => city.cityName == cityNameAndFavorite.cityName);
       if (-1 == cityToDeleteIndex) {
         return left(const RepositoryFailure.notFound());
       } else {
         cities.removeAt(cityToDeleteIndex);
+        await saveListWithLowerCase(cities);
         return right(unit);
       }
     });

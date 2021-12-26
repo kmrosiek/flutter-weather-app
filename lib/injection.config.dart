@@ -43,7 +43,7 @@ Future<_i1.GetIt> $initGetIt(_i1.GetIt get,
       () => _i12.SharedPrefRepository(get<_i10.SharedPreferences>()));
   gh.factory<_i13.AddEditCityBloc>(
       () => _i13.AddEditCityBloc(get<_i11.ILocalRepository>()));
-  gh.factory<_i14.CitiesOverviewBloc>(() => _i14.CitiesOverviewBloc(
+  gh.singleton<_i14.CitiesOverviewBloc>(_i14.CitiesOverviewBloc(
       weatherClient: get<_i7.IRemoteRepository>(),
       localRepository: get<_i11.ILocalRepository>()));
   return get;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/src/provider.dart';
 import 'package:weatherapp/application/cities_overview/cities_overview_bloc.dart';
 import 'package:weatherapp/domain/data_models/city_weather.dart';
 import 'package:weatherapp/injection.dart';

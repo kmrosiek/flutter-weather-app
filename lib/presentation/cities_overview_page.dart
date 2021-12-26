@@ -36,59 +36,73 @@ class _CitiesOverviewState extends State<CitiesOverview> {
         tooltip: 'Add city',
         child: const Icon(Icons.add),
       ),
-      body: BlocBuilder<CitiesOverviewBloc, CitiesOverviewState>(
-        builder: (context, state) {
-          const Widget loading = Center(child: CircularProgressIndicator());
-          return state.map(
-              initial: (_) => loading,
-              loading: (_) => loading,
-              weatherRetrieveError: (error) {
-                return error.repositoryFailure.maybeMap(
-                    notFound: (_) => Center(
-                            child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                              Icon(Icons.image_not_supported, size: 60),
-                              SizedBox(height: 12.0),
-                              Text('No weather saved yet.')
-                            ])),
-                    orElse: () => const Center(
-                          child: Text('Could not fetch the weather.'),
-                        ));
-              },
-              weatherRetrieveSuccess: (response) {
-                var cities = response.citiesWeather;
-                return ListView.separated(
-                  itemCount: cities.length,
-                  separatorBuilder: (BuildContext context, int index) =>
-                      const Divider(),
-                  itemBuilder: (BuildContext context, int index) {
-                    String word = cities[index].getCityNameOrThrow();
-                    bool isSaved = savedWords.contains(word);
-                    return WeatherTile(
-                        cityWeather: cities[index],
-                        word: word,
-                        isSaved: isSaved,
-                        onTap: () {
-                          setState(() {
-                            if (isSaved) {
-                              savedWords.remove(word);
-                            } else {
-                              savedWords.add(word);
-                              context.read<CitiesOverviewBloc>().add(
-                                  CitiesOverviewEvent.favoriteSwitched(
-                                      cities[index]));
-                            }
+      body: BlocConsumer<CitiesOverviewBloc, CitiesOverviewState>(
+          //listenWhen: (p, c) => p.repositoryFailure != c.repositoryFailure,
+          listener: (context, state) => null,
+          builder: (context, state) {
+            if (state.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (state.repositoryFailure.isSome() ||
+                state.citiesWeather.isEmpty) {
+              return Center(
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                    const Icon(Icons.image_not_supported, size: 60),
+                    const SizedBox(height: 12.0),
+                    if (state.repositoryFailure.isNone())
+                      const Text('No weather saved yet.'),
+                    Text(state.citiesWeather.isEmpty
+                        ? 'No weather saved yet.'
+                        : state.repositoryFailure.fold(() => 'Unexpected error',
+                            (failure) {
+                            return failure.maybeMap(
+                                noInternet: (_) => 'No Internet Access',
+                                orElse: () => 'Unexpected error');
+                          })),
+                  ]));
+            }
+            var cities = state.citiesWeather;
+            print('rebuild');
+            return Column(
+              children: [
+                ElevatedButton(
+                    onPressed: () => context
+                        .read<CitiesOverviewBloc>()
+                        .add(CitiesOverviewEvent.deleted(cities[0])),
+                    child: Text('Remove')),
+                Expanded(
+                  child: ListView.separated(
+                    itemCount: cities.length,
+                    separatorBuilder: (BuildContext context, int index) =>
+                        const Divider(),
+                    itemBuilder: (BuildContext context, int index) {
+                      String word = cities[index].getCityNameOrThrow();
+                      bool isSaved = savedWords.contains(word);
+                      return WeatherTile(
+                          cityWeather: cities[index],
+                          word: word,
+                          isSaved: isSaved,
+                          onTap: () {
+                            setState(() {
+                              if (isSaved) {
+                                savedWords.remove(word);
+                              } else {
+                                savedWords.add(word);
+                                context.read<CitiesOverviewBloc>().add(
+                                    CitiesOverviewEvent.favoriteSwitched(
+                                        cities[index]));
+                              }
+                            });
                           });
-                        });
-                  },
-                );
-              },
-              favoriteSwitchFailure: (failure) {
-                return const Text('what the heck');
-              });
-        },
-      ),
+                    },
+                  ),
+                ),
+              ],
+            );
+          }),
     );
   }
 }
