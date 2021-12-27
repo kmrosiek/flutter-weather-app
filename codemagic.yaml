@@ -17,7 +17,7 @@ workflows:
     scripts:
       - flutter packages pub get
       - mkdir -p $FCI_BUILD_DIR/lib/infrastructure/core/
-      - echo $OPEN_WEATHER_APP_ID | base64 --decode > $FCI_BUILD_DIRlib/infrastructure/core/open_weather_app_id.dart
+      - echo $OPEN_WEATHER_APP_ID | base64 --decode > $FCI_BUILD_DIR/lib/infrastructure/core/open_weather_app_id.dart
       - flutter pub run build_runner build --delete-conflicting-outputs
       - flutter test --coverage
     artifacts:
