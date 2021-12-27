@@ -18,7 +18,8 @@ workflows:
           include: true
           source: true
     scripts:
-      - echo 'repo_token:' > .coveralls.yml
+      - echo -n 'repo_token:' > .coveralls.yml
+      - echo -n ' ' >> .coveralls.yml
       - echo $COVERALLS_TOKEN >> .coveralls.yml
       - cat .coveralls.yml
       - exit
