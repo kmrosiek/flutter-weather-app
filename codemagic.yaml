@@ -4,6 +4,7 @@ workflows:
     environment:
       groups:
         - openweather
+        - coveralls
       flutter: stable
     cache:
       cache_paths:
@@ -17,10 +18,13 @@ workflows:
           include: true
           source: true
     scripts:
+      - echo "repo_token: $COVERALLS_TOKEN" > .coveralls.yml
+      - gem install coveralls-lcov
       - flutter packages pub get
       - mkdir -p lib/infrastructure/core/
       - echo $OPEN_WEATHER_APP_ID | base64 --decode > lib/infrastructure/core/open_weather_app_id.dart
       - flutter pub run build_runner build --delete-conflicting-outputs
       - flutter test --coverage
+      - coveralls-lcov coverage/lcov.info
     artifacts:
       - coverage/lcov.info
