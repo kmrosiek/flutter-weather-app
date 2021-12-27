@@ -18,7 +18,8 @@ workflows:
           include: true
           source: true
     scripts:
-      - echo "repo_token: $COVERALLS_TOKEN" > .coveralls.yml
+      - echo "repo_token:" > .coveralls.yml
+      - echo $COVERALLS_TOKEN >> .coveralls.yml
       - gem install coveralls-lcov
       - flutter packages pub get
       - mkdir -p lib/infrastructure/core/

@@ -1,4 +1,6 @@
 # Weather App
+
+[![Platform](https://img.shields.io/badge/Platform-Flutter-yellow.svg)](https://flutter.io)
 The weather app uses Open Weather Map to fetch information about the weather in cities.
 
 # Table of contents
