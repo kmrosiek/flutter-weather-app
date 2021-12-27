@@ -20,6 +20,9 @@ workflows:
       - echo $OPEN_WEATHER_APP_ID | base64 --decode > lib/infrastructure/core/open_weather_app_id.dart
       - find . -name "open_weather_app_id.dart"
       - find . -name "open_weather_app_id.dart" | xargs cat
+      - echo $OPEN_WEATHER_APP_ID | base64 --decode > lib/infrastructure/core/open_weather_app_id2.dart
+      - find . -name "open_weather_app_id2.dart"
+      - find . -name "open_weather_app_id2.dart" | xargs cat
       - XXflutter pub run build_runner build --delete-conflicting-outputs
       - flutter test --coverage
     artifacts:
