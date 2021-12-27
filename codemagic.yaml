@@ -21,8 +21,6 @@ workflows:
       - echo -n 'repo_token:' > .coveralls.yml
       - echo -n ' ' >> .coveralls.yml
       - echo $COVERALLS_TOKEN >> .coveralls.yml
-      - cat .coveralls.yml
-      - exit
       - gem install coveralls-lcov
       - flutter packages pub get
       - mkdir -p lib/infrastructure/core/
