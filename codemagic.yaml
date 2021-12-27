@@ -1,0 +1,32 @@
+workflows:
+  default-workflow:
+    name: Unit Tests
+    environment:
+      groups:
+        - openweather
+        - coveralls
+      flutter: stable
+    cache:
+      cache_paths:
+        - $FCI_BUILD_DIR/build
+    triggering:
+      events:
+        - push
+        - pull_request
+      branch_patterns:
+        - pattern: "*"
+          include: true
+          source: true
+    scripts:
+      - echo -n 'repo_token:' > .coveralls.yml
+      - echo -n ' ' >> .coveralls.yml
+      - echo $COVERALLS_TOKEN >> .coveralls.yml
+      - gem install coveralls-lcov
+      - flutter packages pub get
+      - mkdir -p lib/infrastructure/core/
+      - echo $OPEN_WEATHER_APP_ID | base64 --decode > lib/infrastructure/core/open_weather_app_id.dart
+      - flutter pub run build_runner build --delete-conflicting-outputs
+      - flutter test --coverage
+      - coveralls-lcov coverage/lcov.info
+    artifacts:
+      - coverage/lcov.info
