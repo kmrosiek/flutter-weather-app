@@ -1,5 +1,6 @@
 # Weather App
 
+[![Coverage Status](https://coveralls.io/repos/github/kmrosiek/flutter-weather-app/badge.svg?branch=master)](https://coveralls.io/github/kmrosiek/flutter-weather-app?branch=master)  
 [![Platform](https://img.shields.io/badge/Platform-Flutter-blue.svg)](https://flutter.io)  
 The weather app uses Open Weather Map to fetch information about the weather in cities.
 

@@ -19,7 +19,7 @@ workflows:
           source: true
     scripts:
       - echo 'repo_token:' > .coveralls.yml
-      - echo ' $COVERALLS_TOKEN' >> .coveralls.yml
+      - echo $COVERALLS_TOKEN >> .coveralls.yml
       - cat .coveralls.yml
       - exit
       - gem install coveralls-lcov
