@@ -2,7 +2,8 @@ workflows:
   default-workflow:
     name: Default Workflow
     environment:
-      groups: openweather
+      groups:
+        - openweather
       flutter: stable
     cache:
       cache_paths:
