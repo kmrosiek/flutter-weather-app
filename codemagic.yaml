@@ -1,6 +1,6 @@
 workflows:
   default-workflow:
-    name: Default Workflow
+    name: Unit Tests
     environment:
       groups:
         - openweather
@@ -18,8 +18,10 @@ workflows:
           include: true
           source: true
     scripts:
-      - echo "repo_token:" > .coveralls.yml
-      - echo $COVERALLS_TOKEN >> .coveralls.yml
+      - echo 'repo_token:' > .coveralls.yml
+      - echo ' $COVERALLS_TOKEN' >> .coveralls.yml
+      - cat .coveralls.yml
+      - exit
       - gem install coveralls-lcov
       - flutter packages pub get
       - mkdir -p lib/infrastructure/core/
